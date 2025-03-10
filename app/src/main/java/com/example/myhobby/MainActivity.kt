@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.*
 import com.example.myhobby.ui.theme.MyHobbyTheme
+import com.example.myhobby.ui.view.AppNavigator
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,197 +41,12 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                 ) { innerPadding ->
-                    LoginScreen(innerPadding)
+                    AppNavigator(innerPadding)
                 }
             }
         }
     }
 }
 
-@Composable
-fun LoginScreen(paddingValues: PaddingValues) {
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
-    var emailError by rememberSaveable { mutableStateOf("") }
-    var passwordError by rememberSaveable { mutableStateOf("") }
 
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.login_animation))
-    val progress by animateLottieCompositionAsState(composition, iterations = LottieConstants.IterateForever)
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        item {
-            LottieAnimation(
-                composition = composition,
-                progress = { progress },
-                modifier = Modifier.size(250.dp)
-            )
-
-            Text("Login", fontSize = 26.sp, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        item {
-            TextField(
-                value = email,
-                onValueChange = {email = it},
-                label = { Text(text = emailError.ifEmpty { "Email" }, color = if (emailError.isNotEmpty()) Red else Unspecified) },
-                leadingIcon = {
-                    Icon(
-                        Icons.Rounded.AccountCircle, contentDescription = ""
-                    )
-                },
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp, horizontal = 20.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Transparent,
-                    unfocusedLabelColor = Gray
-                )
-            )
-        }
-
-        item { Spacer(modifier = Modifier.height(8.dp)) }
-
-        item {
-            TextField(
-                value = password,
-                onValueChange = {password = it},
-                label = { Text(passwordError.ifEmpty { "Password" }, color = if (passwordError.isNotEmpty()) Red else Unspecified) },
-                leadingIcon = {
-                    Icon(
-                        Icons.Rounded.Lock, contentDescription = ""
-                    )
-                },
-
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-
-                trailingIcon = {
-                    val image = if (passwordVisible) painterResource(id = R.drawable.visibility_off)
-                    else painterResource(id = R.drawable.visibility_on)
-
-                    Icon(
-                        painter = image,
-                        contentDescription = "",
-                        modifier = Modifier.clickable { passwordVisible = !passwordVisible }
-                    )
-                },
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp, horizontal = 20.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Transparent,
-                    unfocusedLabelColor = Gray
-                )
-            )
-        }
-
-        item { Spacer(modifier = Modifier.height(24.dp)) }
-
-        item {
-            Button(
-                onClick = {
-                    emailError = if (email.isEmpty()) "Email is required" else ""
-                    passwordError = if (password.isEmpty()) "Password is required" else ""
-                },
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp, horizontal = 90.dp),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text("Login")
-            }
-        }
-
-        item { Spacer(modifier = Modifier.height(16.dp)) }
-
-        item {
-            Text(
-                text = "Forgot Password?",
-                color = Color(0xFF2196F3),
-                modifier = Modifier.padding(horizontal = 20.dp)
-                    .clickable {
-                        //forgot password logic here
-                    }
-            )
-        }
-
-        item { Spacer(modifier = Modifier.height(16.dp)) }
-
-        item {
-            Row {
-                Text(text = "Don't have an account?")
-
-                Text(
-                    text = "Sign Up",
-                    color = Color(0xFF2196F3),
-                    modifier = Modifier.padding(horizontal = 10.dp)
-                        .clickable {
-                         //sign up logic here
-                        }
-                )
-            }
-        }
-
-        item { Spacer(modifier = Modifier.height(30.dp)) }
-
-        item {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp)
-            ) {
-                HorizontalDivider(
-                    modifier = Modifier.weight(1f),
-                    thickness = 1.dp,
-                    color = Color.LightGray
-                )
-                Text(
-                    text = "Or",
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    color = Gray,
-                    fontSize = 14.sp
-                )
-                HorizontalDivider(
-                    modifier = Modifier.weight(1f),
-                    thickness = 1.dp,
-                    color = Color.LightGray
-                )
-            }
-        }
-
-        item { Spacer(modifier = Modifier.height(16.dp)) }
-
-        item { SocialLoginButton(R.drawable.ic_google, "Continue with Google") {} }
-        item { Spacer(modifier = Modifier.height(8.dp)) }
-        item { SocialLoginButton(R.drawable.ic_apple, "Continue with Apple") {} }
-        item { Spacer(modifier = Modifier.height(8.dp)) }
-        item { SocialLoginButton(R.drawable.ic_microsoft, "Continue with Microsoft") {} }
-    }
-}
-
-@Composable
-fun SocialLoginButton(icon: Int, text: String, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(
-            width = 1.dp,
-            color = Gray.copy(alpha = 0.5f)
-        )
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                painter = painterResource(id = icon),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-                tint = Color.Unspecified
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text)
-        }
-    }
-}
 
